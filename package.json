@@ -1,0 +1,14 @@
+{
+  "name": "html2pdf-reader",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Convert web articles to PDF using Reader View and Puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.0.0"
+  }
+}

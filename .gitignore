@@ -1,0 +1,5 @@
+.DS_Store
+/extension/reader-view
+extension/Reader-View-Chrome-Web-Store.crx
+extension/Reader-View-Chrome-Web-Store.zip
+/node_modules
