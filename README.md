@@ -31,7 +31,7 @@ unzip extension/Reader-View-Chrome-Web-Store.zip -d extension/reader-view
 node src/index.js --help
 ```
 
-```
+```bash
 Usage: pdfy [options] <url>
 
 Arguments:
