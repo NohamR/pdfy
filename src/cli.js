@@ -14,7 +14,7 @@ export const VALID_THEMES = [
 const program = new Command();
 
 program
-  .name("html2pdf-reader")
+  .name("pdfy")
   .description("Convert web articles to PDF using Reader View and Puppeteer")
   .argument("<url>", "URL of the article to convert")
   .option(

@@ -1,4 +1,4 @@
-# html2pdf-reader
+# pdfy
 
 Convert web articles to PDF using the [Reader View](https://chromewebstore.google.com/detail/reader-view/ecabifbgmdmgdllomnfinbmaellmclnh) Chrome extension and headless Chrome (Puppeteer).
 
@@ -32,7 +32,7 @@ node src/index.js --help
 ```
 
 ```
-Usage: html2pdf-reader [options] <url>
+Usage: pdfy [options] <url>
 
 Arguments:
   url                  URL of the article to convert
