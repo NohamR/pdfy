@@ -1,0 +1,9 @@
+node_modules
+output
+extension/reader-view
+extension/*.crx
+extension/*.zip
+.git
+.gitignore
+.DS_Store
+*~

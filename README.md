@@ -144,6 +144,43 @@ try {
 **`BotProtectionError`** — thrown when the target page appears to be behind bot protection.
 
 
+## HTTP Server
+
+Run as a headless service via Docker or directly with Node:
+
+```bash
+# Start server
+npm run start:server
+
+# Or via Docker
+docker compose up -d
+```
+
+### Endpoints
+
+```
+POST /convert   Generate a PDF from a URL
+GET  /health    Health check (browser status, uptime)
+GET  /          Help page
+```
+
+### Usage
+
+```bash
+curl -X POST http://localhost:8080/convert \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/article","theme":"dark"}' \
+  -o article.pdf
+```
+
+| Body field | Type | Description |
+|------------|------|-------------|
+| `url` | string | Article URL (required unless `html` is provided) |
+| `theme` | string | Reader View theme |
+| `css` | string | Custom CSS string |
+| `html` | string | Pre-fetched HTML (bypasses URL fetch) |
+| `prefs` | object | Extension preferences |
+
 ## Credits
 
 - [Reader View](https://chromewebstore.google.com/detail/reader-view/ecabifbgmdmgdllomnfinbmaellmclnh) Chrome extension
