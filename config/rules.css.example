@@ -1,0 +1,5 @@
+html[data-mode="light"] h1 {
+    font-size: 40px;
+    margin: 40px 0 32px;
+    line-height: 1.2;
+}

@@ -3,3 +3,6 @@
 extension/Reader-View-Chrome-Web-Store.crx
 extension/Reader-View-Chrome-Web-Store.zip
 /node_modules
+/output
+config/reader-view-preferences.json
+config/rules.css

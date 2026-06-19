@@ -1,0 +1,58 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const HIGHLIGHT_CSS =
+  '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">';
+const HIGHLIGHT_JS =
+  '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"><\/script><script>hljs.highlightAll();<\/script>';
+
+export function getOutputFilename(title, outputDir) {
+  const safe = title
+    .replace(/[<>:"/\\|?*]/g, "")
+    .trim()
+    .slice(0, 120);
+  const dir = outputDir ? path.resolve(outputDir) : path.resolve("./output");
+  fs.mkdirSync(dir, { recursive: true });
+  return path.join(dir, `${safe || "article"}.pdf`);
+}
+
+export function resolveOutputPath(outputFlag) {
+  if (!outputFlag) return null;
+  const resolved = path.resolve(outputFlag);
+  const dir = resolved.endsWith(".pdf")
+    ? path.dirname(resolved)
+    : path.dirname(resolved);
+  fs.mkdirSync(dir, { recursive: true });
+  return resolved.endsWith(".pdf") ? resolved : `${resolved}.pdf`;
+}
+
+export function enhanceHtml(html, customCss) {
+  let enhanced = html.replace(
+    "</head>",
+    `${HIGHLIGHT_CSS}${HIGHLIGHT_JS}</head>`,
+  );
+  if (customCss !== null) {
+    enhanced = enhanced.replace(
+      "</head>",
+      `<style>${customCss}</style></head>`,
+    );
+  }
+  return enhanced;
+}
+
+export async function generatePdf(page, html, outputPath) {
+  await page.setContent(html, { waitUntil: "networkidle0" });
+  console.log(`Generating PDF: ${outputPath}`);
+  await page.pdf({
+    path: outputPath,
+    format: "A4",
+    printBackground: true,
+    margin: {
+      top: "0mm",
+      bottom: "0mm",
+      left: "0mm",
+      right: "0mm",
+    },
+  });
+  console.log(`PDF saved: ${outputPath}`);
+}
