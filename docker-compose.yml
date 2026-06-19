@@ -1,0 +1,10 @@
+services:
+  pdfy:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    init: true

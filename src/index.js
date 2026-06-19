@@ -4,6 +4,7 @@ import path from 'node:path'
 import readline from 'node:readline/promises'
 import { parseArgs } from './cli.js'
 import { loadConfigFile, loadPreferences, readCustomCss } from './config.js'
+import { getOutputFilename } from './pdf.js'
 import { convert, BotProtectionError } from './pdfy.js'
 import logger from './logger.js'
 
@@ -20,7 +21,7 @@ async function promptForInput () {
 async function main () {
   const { url, opts } = parseArgs()
 
-  await loadConfigFile(opts.config)
+  const config = await loadConfigFile(opts.config)
 
   const prefsPath = opts.prefs || null
   const cssPath = opts.css || null
@@ -44,9 +45,9 @@ async function main () {
 
       const sizeKb = (result.pdfBuffer.length / 1024).toFixed(0)
       logger.info(`PDF generated: "${result.title}" (${sizeKb} KB)`)
-      if (result.outputPath) {
-        logger.info(`Saved to: "${result.outputPath}"`)
-      }
+      const savePath = result.outputPath || getOutputFilename(result.title)
+      fs.writeFileSync(savePath, result.pdfBuffer)
+      logger.info(`Saved to: "${savePath}"`)
       return
     } catch (err) {
       if (err instanceof BotProtectionError && attempt === 0) {
