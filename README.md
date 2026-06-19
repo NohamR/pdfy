@@ -35,14 +35,15 @@ node src/index.js --help
 Usage: pdfy [options] <url>
 
 Arguments:
-  url                  URL of the article to convert
+  url                      URL of the article to convert
 
 Options:
-  -t, --theme <theme>  Reader View theme (light, dark, sepia, groove-dark, solarized-light, solarized-dark, nord-light, nord-dark)
-  -c, --css <path>     path to custom CSS file
-  -p, --prefs <path>   path to extension preferences JSON
-  -o, --output <path>  output file path (default: ./output/<title>.pdf)
-  -h, --help           display help for command
+  -t, --theme <theme>      Reader View theme (light, dark, sepia, groove-dark, solarized-light, solarized-dark, nord-light, nord-dark)
+  -c, --css <path>         path to custom CSS file
+  -p, --prefs <path>       path to extension preferences JSON
+  -o, --output <path>      output file path (default: ./output/<title>.pdf)
+  -l, --log-level <level>  logging level (fatal, error, warn, info, debug)
+  -h, --help               display help for command
 ```
 
 ### Examples
