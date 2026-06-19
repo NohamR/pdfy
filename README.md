@@ -35,11 +35,42 @@ Arguments:
 Options:
   -t, --theme <theme>      Reader View theme (light, dark, sepia, groove-dark, solarized-light, solarized-dark, nord-light, nord-dark)
   -c, --css <path>         path to custom CSS file
+  --config <path>          path to config file (.pdfyrc, .pdfyrc.json, pdfy.config.js)
   -p, --prefs <path>       path to extension preferences JSON
   -o, --output <path>      output file path (default: ./output/<title>.pdf)
   -l, --log-level <level>  logging level (fatal, error, warn, info, debug)
   -h, --help               display help for command
 ```
+
+### Configuration
+
+pdfy automatically discovers a config file in the current directory. Supported formats:
+
+- `.pdfyrc` (JSON)
+- `.pdfyrc.json` (JSON)
+- `pdfy.config.js` (ESM module exporting a default object)
+
+Example `.pdfyrc`:
+```json
+{
+  "theme": "dark",
+  "css": "config/rules.css",
+  "prefs": "config/reader-view-preferences.json",
+  "output": "./output/article.pdf"
+}
+```
+
+Example `pdfy.config.js`:
+```js
+export default {
+  theme: 'dark',
+  css: 'config/rules.css',
+  prefs: 'config/reader-view-preferences.json',
+  output: './output/article.pdf'
+}
+```
+
+CLI flags always override config file values. Use `--config <path>` to specify a custom config file location.
 
 ### Examples
 
@@ -47,6 +78,7 @@ Options:
 node src/index.js https://example.com/article
 node src/index.js https://example.com/article --theme dark --css config/rules.css
 node src/index.js https://example.com/article --prefs config/reader-view-preferences.json
+node src/index.js https://example.com/article --config .pdfyrc
 npm start -- https://example.com/article --theme dark --css config/rules.css
 ```
 

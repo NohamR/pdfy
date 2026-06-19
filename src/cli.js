@@ -22,6 +22,7 @@ program
     `Reader View theme (${VALID_THEMES.join(', ')})`
   )
   .option('-c, --css <path>', 'path to custom CSS file')
+  .option('--config <path>', 'path to config file (.pdfyrc, .pdfyrc.json, pdfy.config.js)')
   .option('-p, --prefs <path>', 'path to extension preferences JSON')
   .option(
     '-o, --output <path>',
@@ -50,7 +51,8 @@ export function parseArgs () {
       theme: opts.theme || null,
       css: opts.css || null,
       prefs: opts.prefs || null,
-      output: opts.output || null
+      output: opts.output || null,
+      config: opts.config || null
     }
   }
 }

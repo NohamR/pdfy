@@ -3,7 +3,7 @@ import process from 'node:process'
 import path from 'node:path'
 import readline from 'node:readline/promises'
 import { parseArgs, VALID_THEMES } from './cli.js'
-import { loadPreferences, readCustomCss } from './config.js'
+import { loadConfigFile, loadPreferences, readCustomCss } from './config.js'
 import logger from './logger.js'
 import {
   checkExtension,
@@ -43,12 +43,18 @@ async function main () {
 
   await checkExtension()
 
+  const config = await loadConfigFile(opts.config)
+
+  const prefsPath = opts.prefs || config.prefs || null
+  const cssPath = opts.css || config.css || null
+  const outputPath = opts.output || config.output || null
+
   let preferences = {}
-  if (opts.prefs) {
-    preferences = loadPreferences(path.resolve(opts.prefs))
+  if (prefsPath) {
+    preferences = loadPreferences(path.resolve(prefsPath))
   }
 
-  const theme = opts.theme || preferences.mode || 'light'
+  const theme = opts.theme || config.theme || preferences.mode || 'light'
   if (!VALID_THEMES.includes(theme)) {
     logger.error(
       `Invalid theme "${theme}". Valid themes: ${VALID_THEMES.join(', ')}`
@@ -59,11 +65,11 @@ async function main () {
   logger.info(`Theme: ${theme}`)
 
   let customCss = null
-  if (opts.css) {
-    customCss = readCustomCss(path.resolve(opts.css))
+  if (cssPath) {
+    customCss = readCustomCss(path.resolve(cssPath))
     if (customCss !== null) {
       preferences['user-css'] = customCss
-      logger.info(`Custom CSS loaded: "${path.resolve(opts.css)}"`)
+      logger.info(`Custom CSS loaded: "${path.resolve(cssPath)}"`)
     }
   }
 
@@ -124,8 +130,8 @@ async function main () {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const title = await getArticleTitle(readerPage)
-    const outputFile = opts.output
-      ? resolveOutputPath(opts.output)
+    const outputFile = outputPath
+      ? resolveOutputPath(outputPath)
       : getOutputFilename(title)
 
     let contentHtml = await extractRenderedContent(readerPage)
