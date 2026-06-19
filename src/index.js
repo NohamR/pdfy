@@ -128,15 +128,18 @@ async function main () {
       ? resolveOutputPath(opts.output)
       : getOutputFilename(title)
 
-    const contentHtml = await extractRenderedContent(
-      readerPage,
-      `${EXTENSION_BASE}${extId}/data/reader/`
+    let contentHtml = await extractRenderedContent(readerPage)
+    contentHtml = contentHtml.replace(
+      '<head>',
+      `<head><base href="${url}"><meta name="referrer" content="unsafe-url">`
     )
+    contentHtml = contentHtml.replace(/ loading="lazy"/g, '')
     await readerPage.close()
 
     const enhancedHtml = enhanceHtml(contentHtml, customCss)
 
     const pdfPage = await browser.newPage()
+    await pdfPage.setViewport({ width: 1280, height: 7200 })
     await generatePdf(pdfPage, enhancedHtml, outputFile)
     await pdfPage.close()
   } finally {

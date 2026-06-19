@@ -43,6 +43,10 @@ export function enhanceHtml (html, customCss) {
 
 export async function generatePdf (page, html, outputPath) {
   await page.setContent(html, { waitUntil: 'networkidle0' })
+  await page.waitForFunction(
+    () => Array.from(document.images).every(img => img.complete),
+    { timeout: 15000, polling: 200 }
+  ).catch(() => logger.debug('Image wait timed out, continuing...'))
   logger.info(`Generating PDF: "${outputPath}"`)
   await page.pdf({
     path: outputPath,

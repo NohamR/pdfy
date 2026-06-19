@@ -130,8 +130,8 @@ export async function waitForReaderView (page) {
   logger.info('Article rendered.')
 }
 
-export async function extractRenderedContent (page, baseUrl) {
-  const html = await page.evaluate((extBase) => {
+export async function extractRenderedContent (page) {
+  const html = await page.evaluate(() => {
     const iframe = document.querySelector('#content iframe')
     if (!iframe) return null
     try {
@@ -156,14 +156,11 @@ export async function extractRenderedContent (page, baseUrl) {
           : inlineVars
       }
 
-      const b = doc.createElement('base')
-      b.href = extBase
-      doc.head.insertBefore(b, doc.head.firstChild)
       return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML
     } catch {
       return null
     }
-  }, baseUrl)
+  })
   if (!html) throw new Error('Could not extract rendered content from iframe')
   return html
 }
