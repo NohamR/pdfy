@@ -7,6 +7,39 @@ const EXTENSION_DIR = path.resolve("./extension/reader-view");
 const MANIFEST_PATH = path.join(EXTENSION_DIR, "manifest.json");
 const READABILITY_PATH = path.join(EXTENSION_DIR, "data/inject/Readability.js");
 
+const VALID_THEMES = [
+  "light", "dark", "sepia", "groove-dark",
+  "solarized-light", "solarized-dark", "nord-light", "nord-dark",
+];
+
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const url = args[0];
+  const opts = { theme: null, css: null, prefs: null };
+  for (let i = 1; i < args.length; i++) {
+    if (args[i] === "--theme" && args[i + 1]) opts.theme = args[++i];
+    else if (args[i] === "--css" && args[i + 1]) opts.css = args[++i];
+    else if (args[i] === "--prefs" && args[i + 1]) opts.prefs = args[++i];
+  }
+  return { url, opts };
+}
+
+function loadPreferences(prefsPath) {
+  if (!prefsPath || !fs.existsSync(prefsPath)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(prefsPath, "utf-8"));
+  } catch (e) {
+    console.warn(`Warning: could not parse preferences file: ${prefsPath}`);
+    return {};
+  }
+}
+
+function readCustomCss(cssPath) {
+  if (!cssPath || !fs.existsSync(cssPath)) return null;
+  const css = fs.readFileSync(cssPath, "utf-8").trim();
+  return css || null;
+}
+
 function getOutputFilename(title) {
   const safe = title
     .replace(/[<>:"/\\|?*]/g, "")
@@ -43,21 +76,40 @@ async function extractArticle(page, readabilityPath) {
     const reader = new Readability(doc);
     const parsed = reader.parse();
     if (!parsed) return null;
+    const text = parsed.textContent || "";
+    const lang = document.documentElement.lang || "en";
+    const readingSpeeds = {
+      en: { cpm: 987, variance: 118 }, ar: { cpm: 612, variance: 88 },
+      de: { cpm: 920, variance: 86 }, es: { cpm: 1025, variance: 127 },
+      fi: { cpm: 1078, variance: 121 }, fr: { cpm: 998, variance: 126 },
+      he: { cpm: 833, variance: 130 }, it: { cpm: 950, variance: 131 },
+      jp: { cpm: 891, variance: 121 }, nl: { cpm: 1021, variance: 96 },
+      pl: { cpm: 916, variance: 126 }, pt: { cpm: 1007, variance: 122 },
+      ru: { cpm: 985, variance: 119 }, sv: { cpm: 1015, variance: 116 },
+      tr: { cpm: 935, variance: 103 }, zh: { cpm: 891, variance: 121 },
+    };
+    const speed = readingSpeeds[lang] || readingSpeeds.en;
+    const charsPerMinLow = speed.cpm - speed.variance;
+    const charsPerMinHigh = speed.cpm + speed.variance;
+    const dateMeta = document.querySelector(
+      'meta[property="article:published_time"],meta[property="og:pubdate"],' +
+      'meta[property="og:publish_date"],meta[name="citation_online_date"],' +
+      'meta[name="dc.Date"]'
+    );
+    const publishedTime = dateMeta?.content || parsed.publishedTime || "";
     return {
-      title: parsed.title,
-      content: parsed.content,
-      textContent: parsed.textContent,
-      length: parsed.length,
-      excerpt: parsed.excerpt,
-      byline: parsed.byline,
-      dir: parsed.dir,
+      ...parsed,
+      lang,
+      readingTimeMinsFast: Math.ceil(text.length / charsPerMinHigh),
+      readingTimeMinsSlow: Math.ceil(text.length / charsPerMinLow),
+      published_time: publishedTime ? (new Date(publishedTime)).toLocaleDateString() : "",
       url: window.location.href,
     };
   });
   if (!article) {
     throw new Error("Failed to extract article content with Readability");
   }
-  console.log(`Extracted article: ${article.title} (${article.length} chars)`);
+  console.log(`Extracted article: ${article.title} (${article.length} chars, reading ${article.readingTimeMinsFast}-${article.readingTimeMinsSlow} min` + (article.published_time ? `, ${article.published_time}` : "") + ")");
   return article;
 }
 
@@ -111,6 +163,22 @@ async function waitForReaderView(page) {
   console.log("Article rendered.");
 }
 
+async function setExtensionPreferences(page, extId, prefs) {
+  await page.goto(
+    `chrome-extension://${extId}/manifest.json`,
+    { timeout: 8000 }
+  );
+  await page.evaluate((settings) => {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.set(settings, () => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError.message);
+        else resolve();
+      });
+    });
+  }, prefs);
+    console.log(`Extension preferences set: ${Object.keys(prefs).length} key(s)`);
+}
+
 async function extractRenderedContent(page, baseUrl) {
   const html = await page.evaluate((extBase) => {
     const iframe = document.querySelector("#content iframe");
@@ -131,9 +199,10 @@ async function extractRenderedContent(page, baseUrl) {
 }
 
 async function main() {
-  const url = process.argv[2];
+  const { url, opts } = parseArgs();
   if (!url) {
-    console.error("Usage: node index.js <URL>");
+    console.error("Usage: node index.js <URL> [--theme <theme>] [--css <path>] [--prefs <path>]");
+    console.error("Themes: " + VALID_THEMES.join(", "));
     process.exit(1);
   }
 
@@ -152,6 +221,29 @@ async function main() {
       "The extension may be incomplete. Please re-extract it."
     );
     process.exit(1);
+  }
+
+  let preferences = {};
+  if (opts.prefs) {
+    preferences = loadPreferences(path.resolve(opts.prefs));
+  }
+
+  const theme = opts.theme || preferences.mode || "light";
+  if (!VALID_THEMES.includes(theme)) {
+    console.error(`Invalid theme "${theme}". Valid themes: ${VALID_THEMES.join(", ")}`);
+    process.exit(1);
+  }
+  preferences.mode = theme;
+  console.log(`Theme: ${theme}`);
+
+  let customCss = null;
+  if (opts.css) {
+    const cssFile = path.resolve(opts.css);
+    customCss = readCustomCss(cssFile);
+    if (customCss !== null) {
+      preferences["user-css"] = customCss;
+      console.log(`Custom CSS loaded: ${cssFile}`);
+    }
   }
 
   console.log(`Launching browser with extension: ${EXTENSION_DIR}`);
@@ -180,6 +272,13 @@ async function main() {
 
     const extPage = await browser.newPage();
     await storeArticle(extPage, extId, 1, article);
+
+    const prefsToSet = Object.fromEntries(
+      Object.entries(preferences).filter(([_, v]) => v !== undefined && v !== null)
+    );
+    if (Object.keys(prefsToSet).length > 0) {
+      await setExtensionPreferences(extPage, extId, prefsToSet);
+    }
     await extPage.close();
 
     const readerUrl = [
@@ -205,7 +304,11 @@ async function main() {
 
     const highlightCss = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">';
     const highlightJs = '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"><\/script><script>hljs.highlightAll();<\/script>';
-    const enhancedHtml = contentHtml.replace("</head>", `${highlightCss}${highlightJs}</head>`);
+    let enhancedHtml = contentHtml.replace("</head>", `${highlightCss}${highlightJs}</head>`);
+
+    if (customCss !== null) {
+      enhancedHtml = enhancedHtml.replace("</head>", `<style>${customCss}</style></head>`);
+    }
 
     const pdfPage = await browser.newPage();
     await pdfPage.setContent(enhancedHtml, { waitUntil: "networkidle0" });
