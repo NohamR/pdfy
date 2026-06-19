@@ -1,5 +1,7 @@
+import fs from 'node:fs'
 import process from 'node:process'
 import path from 'node:path'
+import readline from 'node:readline/promises'
 import { parseArgs, VALID_THEMES } from './cli.js'
 import { loadPreferences, readCustomCss } from './config.js'
 import logger from './logger.js'
@@ -25,6 +27,16 @@ import {
 } from './pdf.js'
 
 const EXTENSION_BASE = 'chrome-extension://'
+
+async function promptForInput () {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+  const answer = await rl.question('> ')
+  rl.close()
+  return answer.trim().replace(/^['"]|['"]$/g, '')
+}
 
 async function main () {
   const { url, opts } = parseArgs()
@@ -63,7 +75,26 @@ async function main () {
     logger.info(`Fetching article: ${url}`)
     const articlePage = await browser.newPage()
     await articlePage.goto(url, { waitUntil: 'networkidle0', timeout: 30000 })
-    const article = await extractArticle(articlePage, getReadabilityPath())
+    let article = await extractArticle(articlePage, getReadabilityPath())
+
+    if (article.title === 'Just a moment...' || article.length < 500) {
+      logger.warn('Cloudflare or bot protection detected..')
+      logger.warn('Open the URL in your browser, save the page as complete HTML (File > Save Page As),')
+      logger.warn('then paste the saved file path below and press Enter:')
+
+      const htmlPath = await promptForInput()
+      const resolvedPath = path.resolve(htmlPath)
+
+      if (!fs.existsSync(resolvedPath)) {
+        logger.error(`File not found: ${resolvedPath}`)
+        process.exit(1)
+      }
+
+      logger.info(`Loading article from local file: ${resolvedPath}`)
+      await articlePage.goto(`file://${resolvedPath}`, { waitUntil: 'networkidle0', timeout: 30000 })
+      article = await extractArticle(articlePage, getReadabilityPath())
+    }
+
     await articlePage.close()
 
     const extPage = await browser.newPage()
