@@ -62,7 +62,7 @@ export async function convert (url, options = {}) {
     if (html) {
       await articlePage.setContent(html, { waitUntil: 'networkidle0' })
     } else {
-      await articlePage.goto(url, { waitUntil: 'networkidle0', timeout: 30000 })
+      await articlePage.goto(url, { waitUntil: 'networkidle0', timeout: 60000 })
     }
     const article = await extractArticle(articlePage, getReadabilityPath())
     await articlePage.close()
@@ -95,7 +95,7 @@ export async function convert (url, options = {}) {
     logger.debug(`Opening Reader View: ${readerUrl}`)
 
     const readerPage = await browser.newPage()
-    await readerPage.goto(readerUrl, { waitUntil: 'load', timeout: 30000 })
+    await readerPage.goto(readerUrl, { waitUntil: 'load', timeout: 60000 })
     await waitForReaderView(readerPage)
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
