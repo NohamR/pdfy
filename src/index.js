@@ -63,7 +63,7 @@ async function main () {
     customCss = readCustomCss(path.resolve(opts.css))
     if (customCss !== null) {
       preferences['user-css'] = customCss
-      logger.info(`Custom CSS loaded: ${path.resolve(opts.css)}`)
+      logger.info(`Custom CSS loaded: "${path.resolve(opts.css)}"`)
     }
   }
 
@@ -72,7 +72,7 @@ async function main () {
   try {
     const extId = await discoverExtensionId(browser)
 
-    logger.info(`Fetching article: ${url}`)
+    logger.info(`Fetching article: "${url}"`)
     const articlePage = await browser.newPage()
     await articlePage.goto(url, { waitUntil: 'networkidle0', timeout: 30000 })
     let article = await extractArticle(articlePage, getReadabilityPath())
@@ -86,11 +86,11 @@ async function main () {
       const resolvedPath = path.resolve(htmlPath)
 
       if (!fs.existsSync(resolvedPath)) {
-        logger.error(`File not found: ${resolvedPath}`)
+        logger.error(`File not found: "${resolvedPath}"`)
         process.exit(1)
       }
 
-      logger.info(`Loading article from local file: ${resolvedPath}`)
+      logger.info(`Loading article from local file: "${resolvedPath}"`)
       await articlePage.goto(`file://${resolvedPath}`, { waitUntil: 'networkidle0', timeout: 30000 })
       article = await extractArticle(articlePage, getReadabilityPath())
     }

@@ -53,7 +53,7 @@ export async function extractArticle (page, readabilityPath) {
     throw new Error('Failed to extract article content with Readability')
   }
   logger.info(
-    `Extracted article: ${article.title} (${article.length} chars, reading ${article.readingTimeMinsFast}-${article.readingTimeMinsSlow} min` +
+    `Extracted article: '${article.title}' (${article.length} chars, reading ${article.readingTimeMinsFast}-${article.readingTimeMinsSlow} min` +
       (article.published_time ? `, ${article.published_time}` : '') +
       ')'
   )

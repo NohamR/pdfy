@@ -7,7 +7,7 @@ export function loadPreferences (prefsPath) {
   try {
     return JSON.parse(fs.readFileSync(prefsPath, 'utf-8'))
   } catch (e) {
-    logger.warn(`Warning: could not parse preferences file: ${prefsPath}`)
+    logger.warn(`Warning: could not parse preferences file: "${prefsPath}"`)
     return {}
   }
 }

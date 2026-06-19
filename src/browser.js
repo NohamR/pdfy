@@ -10,7 +10,7 @@ const READABILITY_PATH = path.join(EXTENSION_DIR, 'data/inject/Readability.js')
 export function checkExtension () {
   if (!fs.existsSync(MANIFEST_PATH)) {
     logger.error(
-      `Extension not found at: ${EXTENSION_DIR}\n` +
+      `Extension not found at: "${EXTENSION_DIR}"\n` +
         'Please extract the extension first:\n' +
         '  mkdir -p extension/reader-view\n' +
         '  unzip extension/Reader-View-Chrome-Web-Store.zip -d extension/reader-view'
@@ -19,7 +19,7 @@ export function checkExtension () {
   }
   if (!fs.existsSync(READABILITY_PATH)) {
     logger.error(
-      `Readability.js not found at: ${READABILITY_PATH}\n` +
+      `Readability.js not found at: "${READABILITY_PATH}"\n` +
         'The extension may be incomplete. Please re-extract it.'
     )
     process.exit(1)
@@ -35,7 +35,7 @@ export function getExtensionDir () {
 }
 
 export async function launchBrowser () {
-  logger.debug(`Launching browser with extension: ${EXTENSION_DIR}`)
+  logger.debug(`Launching browser with extension: "${EXTENSION_DIR}"`)
   const browser = await puppeteer.launch({
     headless: true,
     ignoreDefaultArgs: [

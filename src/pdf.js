@@ -43,7 +43,7 @@ export function enhanceHtml (html, customCss) {
 
 export async function generatePdf (page, html, outputPath) {
   await page.setContent(html, { waitUntil: 'networkidle0' })
-  logger.info(`Generating PDF: ${outputPath}`)
+  logger.info(`Generating PDF: "${outputPath}"`)
   await page.pdf({
     path: outputPath,
     format: 'A4',
@@ -55,5 +55,5 @@ export async function generatePdf (page, html, outputPath) {
       right: '0mm'
     }
   })
-  logger.info(`PDF saved: ${outputPath}`)
+  logger.info(`PDF saved: "${outputPath}"`)
 }
