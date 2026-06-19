@@ -9,6 +9,10 @@
     "start": "node src/index.js",
     "test": "node src/test/test.js"
   },
+  "standard": {
+    "globals": ["chrome", "Readability", "indexedDB", "getComputedStyle"],
+    "ignore": ["extension/"]
+  },
   "dependencies": {
     "commander": "^15.0.0",
     "puppeteer": "^24.0.0"

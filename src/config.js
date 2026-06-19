@@ -1,25 +1,25 @@
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs'
+import path from 'node:path'
 
-export function loadPreferences(prefsPath) {
-  if (!prefsPath || !fs.existsSync(prefsPath)) return {};
+export function loadPreferences (prefsPath) {
+  if (!prefsPath || !fs.existsSync(prefsPath)) return {}
   try {
-    return JSON.parse(fs.readFileSync(prefsPath, "utf-8"));
+    return JSON.parse(fs.readFileSync(prefsPath, 'utf-8'))
   } catch (e) {
-    console.warn(`Warning: could not parse preferences file: ${prefsPath}`);
-    return {};
+    console.warn(`Warning: could not parse preferences file: ${prefsPath}`)
+    return {}
   }
 }
 
-export function readCustomCss(cssPath) {
-  if (!cssPath || !fs.existsSync(cssPath)) return null;
-  const css = fs.readFileSync(cssPath, "utf-8").trim();
-  return css || null;
+export function readCustomCss (cssPath) {
+  if (!cssPath || !fs.existsSync(cssPath)) return null
+  const css = fs.readFileSync(cssPath, 'utf-8').trim()
+  return css || null
 }
 
-export const DEFAULT_CONFIG_DIR = path.resolve("./config");
+export const DEFAULT_CONFIG_DIR = path.resolve('./config')
 export const DEFAULT_PREFS_PATH = path.join(
   DEFAULT_CONFIG_DIR,
-  "reader-view-preferences.json",
-);
-export const DEFAULT_CSS_PATH = path.join(DEFAULT_CONFIG_DIR, "rules.css");
+  'reader-view-preferences.json'
+)
+export const DEFAULT_CSS_PATH = path.join(DEFAULT_CONFIG_DIR, 'rules.css')
