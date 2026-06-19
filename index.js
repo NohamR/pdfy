@@ -36,7 +36,8 @@ async function discoverExtensionId(browser) {
 }
 
 async function extractArticle(page, readabilityPath) {
-  await page.addScriptTag({ path: readabilityPath });
+  const readabilitySource = fs.readFileSync(readabilityPath, "utf-8");
+  await page.evaluate(readabilitySource);
   const article = await page.evaluate(() => {
     const doc = document.cloneNode(true);
     const reader = new Readability(doc);
@@ -202,8 +203,12 @@ async function main() {
     const contentHtml = await extractRenderedContent(readerPage, `chrome-extension://${extId}/data/reader/`);
     await readerPage.close();
 
+    const highlightCss = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">';
+    const highlightJs = '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"><\/script><script>hljs.highlightAll();<\/script>';
+    const enhancedHtml = contentHtml.replace("</head>", `${highlightCss}${highlightJs}</head>`);
+
     const pdfPage = await browser.newPage();
-    await pdfPage.setContent(contentHtml, { waitUntil: "networkidle0" });
+    await pdfPage.setContent(enhancedHtml, { waitUntil: "networkidle0" });
 
     console.log(`Generating PDF: ${outputFile}`);
     await pdfPage.pdf({
@@ -211,10 +216,10 @@ async function main() {
       format: "A4",
       printBackground: true,
       margin: {
-        top: "15mm",
-        bottom: "15mm",
-        left: "15mm",
-        right: "15mm",
+        top: "10mm",
+        bottom: "10mm",
+        left: "0mm",
+        right: "0mm",
       },
     });
 
