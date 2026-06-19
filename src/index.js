@@ -2,6 +2,7 @@ import process from 'node:process'
 import path from 'node:path'
 import { parseArgs, VALID_THEMES } from './cli.js'
 import { loadPreferences, readCustomCss } from './config.js'
+import logger from './logger.js'
 import {
   checkExtension,
   launchBrowser,
@@ -37,20 +38,20 @@ async function main () {
 
   const theme = opts.theme || preferences.mode || 'light'
   if (!VALID_THEMES.includes(theme)) {
-    console.error(
+    logger.error(
       `Invalid theme "${theme}". Valid themes: ${VALID_THEMES.join(', ')}`
     )
     process.exit(1)
   }
   preferences.mode = theme
-  console.log(`Theme: ${theme}`)
+  logger.info(`Theme: ${theme}`)
 
   let customCss = null
   if (opts.css) {
     customCss = readCustomCss(path.resolve(opts.css))
     if (customCss !== null) {
       preferences['user-css'] = customCss
-      console.log(`Custom CSS loaded: ${path.resolve(opts.css)}`)
+      logger.info(`Custom CSS loaded: ${path.resolve(opts.css)}`)
     }
   }
 
@@ -59,7 +60,7 @@ async function main () {
   try {
     const extId = await discoverExtensionId(browser)
 
-    console.log(`Fetching article: ${url}`)
+    logger.info(`Fetching article: ${url}`)
     const articlePage = await browser.newPage()
     await articlePage.goto(url, { waitUntil: 'networkidle0', timeout: 30000 })
     const article = await extractArticle(articlePage, getReadabilityPath())
@@ -83,7 +84,7 @@ async function main () {
       '?id=1',
       `&url=${encodeURIComponent(url)}`
     ].join('')
-    console.log(`Opening Reader View: ${readerUrl}`)
+    logger.debug(`Opening Reader View: ${readerUrl}`)
 
     const readerPage = await browser.newPage()
     await readerPage.goto(readerUrl, { waitUntil: 'load', timeout: 30000 })
@@ -109,11 +110,11 @@ async function main () {
     await pdfPage.close()
   } finally {
     await browser.close()
-    console.log('Browser closed.')
+    logger.info('Browser closed.')
   }
 }
 
 main().catch((err) => {
-  console.error('Fatal error:', err)
+  logger.error(err)
   process.exit(1)
 })

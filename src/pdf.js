@@ -1,10 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import logger from './logger.js'
 
 const HIGHLIGHT_CSS =
   '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">'
 const HIGHLIGHT_JS =
-  '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"><script><script>hljs.highlightAll();<script>'
+  '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"><\/script><script>hljs.highlightAll();<\/script>'
 
 export function getOutputFilename (title, outputDir) {
   const safe = title
@@ -42,7 +43,7 @@ export function enhanceHtml (html, customCss) {
 
 export async function generatePdf (page, html, outputPath) {
   await page.setContent(html, { waitUntil: 'networkidle0' })
-  console.log(`Generating PDF: ${outputPath}`)
+  logger.info(`Generating PDF: ${outputPath}`)
   await page.pdf({
     path: outputPath,
     format: 'A4',
@@ -54,5 +55,5 @@ export async function generatePdf (page, html, outputPath) {
       right: '0mm'
     }
   })
-  console.log(`PDF saved: ${outputPath}`)
+  logger.info(`PDF saved: ${outputPath}`)
 }

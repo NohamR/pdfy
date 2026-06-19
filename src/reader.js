@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import logger from './logger.js'
 
 export async function extractArticle (page, readabilityPath) {
   const readabilitySource = fs.readFileSync(readabilityPath, 'utf-8')
@@ -51,7 +52,7 @@ export async function extractArticle (page, readabilityPath) {
   if (!article) {
     throw new Error('Failed to extract article content with Readability')
   }
-  console.log(
+  logger.info(
     `Extracted article: ${article.title} (${article.length} chars, reading ${article.readingTimeMinsFast}-${article.readingTimeMinsSlow} min` +
       (article.published_time ? `, ${article.published_time}` : '') +
       ')'
@@ -90,7 +91,7 @@ export async function storeArticle (extPage, extId, articleId, article) {
     },
     { id: articleId, article }
   )
-  console.log('Article stored in extension IndexedDB')
+  logger.debug('Article stored in extension IndexedDB')
 }
 
 export async function setExtensionPreferences (page, extId, prefs) {
@@ -105,11 +106,11 @@ export async function setExtensionPreferences (page, extId, prefs) {
       })
     })
   }, prefs)
-  console.log(`Extension preferences set: ${Object.keys(prefs).length} key(s)`)
+  logger.debug(`Extension preferences set: ${Object.keys(prefs).length} key(s)`)
 }
 
 export async function waitForReaderView (page) {
-  console.log('Waiting for Reader View to render article...')
+  logger.debug('Waiting for Reader View to render article...')
   await page.waitForFunction(
     () => {
       const title = document.title
@@ -126,7 +127,7 @@ export async function waitForReaderView (page) {
     },
     { timeout: 60000 }
   )
-  console.log('Article rendered.')
+  logger.info('Article rendered.')
 }
 
 export async function extractRenderedContent (page, baseUrl) {

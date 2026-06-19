@@ -1,12 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import logger from './logger.js'
 
 export function loadPreferences (prefsPath) {
   if (!prefsPath || !fs.existsSync(prefsPath)) return {}
   try {
     return JSON.parse(fs.readFileSync(prefsPath, 'utf-8'))
   } catch (e) {
-    console.warn(`Warning: could not parse preferences file: ${prefsPath}`)
+    logger.warn(`Warning: could not parse preferences file: ${prefsPath}`)
     return {}
   }
 }

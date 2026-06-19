@@ -27,6 +27,10 @@ program
     '-o, --output <path>',
     'output file path (default: ./output/<title>.pdf)'
   )
+  .option(
+    '-l, --log-level <level>',
+    'logging level (fatal, error, warn, info, debug)'
+  )
   .addHelpText(
     'after',
     `
