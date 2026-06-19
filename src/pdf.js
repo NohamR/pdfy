@@ -41,11 +41,11 @@ export function enhanceHtml (html, customCss) {
   return enhanced
 }
 
-export async function generatePdf (page, html, outputPath) {
-  await page.setContent(html, { waitUntil: 'networkidle0' })
+export async function generatePdf (page, html, outputPath, { timeout = 30000 } = {}) {
+  await page.setContent(html, { waitUntil: 'networkidle0', timeout })
   await page.waitForFunction(
     () => Array.from(document.images).every(img => img.complete),
-    { timeout: 15000, polling: 200 }
+    { timeout, polling: 200 }
   ).catch(() => logger.debug('Image wait timed out, continuing...'))
   const pdfOptions = {
     format: 'A4',

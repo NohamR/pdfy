@@ -19,6 +19,7 @@ import { VALID_THEMES } from './cli.js'
 import logger from './logger.js'
 
 const EXTENSION_BASE = 'chrome-extension://'
+const NAV_TIMEOUT = 30000
 
 export { launchBrowser, VALID_THEMES }
 
@@ -45,6 +46,8 @@ export async function convert (url, options = {}) {
 
   logger.info(`Theme: ${theme}`)
 
+  const timeout = NAV_TIMEOUT
+
   await checkExtension()
 
   let browser = externalBrowser
@@ -62,7 +65,7 @@ export async function convert (url, options = {}) {
     if (html) {
       await articlePage.setContent(html, { waitUntil: 'networkidle0' })
     } else {
-      await articlePage.goto(url, { waitUntil: 'networkidle0', timeout: 60000 })
+      await articlePage.goto(url, { waitUntil: 'networkidle0', timeout })
     }
     const article = await extractArticle(articlePage, getReadabilityPath())
     await articlePage.close()
@@ -95,7 +98,7 @@ export async function convert (url, options = {}) {
     logger.debug(`Opening Reader View: ${readerUrl}`)
 
     const readerPage = await browser.newPage()
-    await readerPage.goto(readerUrl, { waitUntil: 'load', timeout: 60000 })
+    await readerPage.goto(readerUrl, { waitUntil: 'load', timeout })
     await waitForReaderView(readerPage)
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
@@ -120,7 +123,7 @@ export async function convert (url, options = {}) {
       fs.mkdirSync(path.dirname(outputPath), { recursive: true })
     }
 
-    const pdfBuffer = await generatePdf(pdfPage, enhancedHtml, outputPath)
+    const pdfBuffer = await generatePdf(pdfPage, enhancedHtml, outputPath, { timeout })
     await pdfPage.close()
 
     return { title, pdfBuffer, outputPath }
