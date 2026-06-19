@@ -1,6 +1,6 @@
 import process from "node:process";
 import path from "node:path";
-import { parseArgs, printUsage, VALID_THEMES } from "./cli.js";
+import { parseArgs, VALID_THEMES } from "./cli.js";
 import { loadPreferences, readCustomCss } from "./config.js";
 import {
   checkExtension,
@@ -27,10 +27,6 @@ const EXTENSION_BASE = "chrome-extension://";
 
 async function main() {
   const { url, opts } = parseArgs();
-  if (!url) {
-    printUsage();
-    process.exit(1);
-  }
 
   checkExtension();
 

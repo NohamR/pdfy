@@ -10,6 +10,7 @@
     "test": "node src/test/test.js"
   },
   "dependencies": {
+    "commander": "^15.0.0",
     "puppeteer": "^24.0.0"
   }
 }
