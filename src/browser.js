@@ -14,20 +14,17 @@ export async function checkExtension () {
     try {
       await downloadExtension({ logger })
     } catch (err) {
-      logger.error(`Failed to download extension: ${err.message}`)
-      process.exit(1)
+      throw new Error(`Failed to download extension: ${err.message}`)
     }
     if (!fs.existsSync(MANIFEST_PATH)) {
-      logger.error('Download completed but extension not found. Extraction may have failed.')
-      process.exit(1)
+      throw new Error('Download completed but extension not found. Extraction may have failed.')
     }
   }
   if (!fs.existsSync(READABILITY_PATH)) {
-    logger.error(
+    throw new Error(
       `Readability.js not found at: "${READABILITY_PATH}"\n` +
         'The extension may be incomplete.'
     )
-    process.exit(1)
   }
 }
 

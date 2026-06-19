@@ -20,7 +20,7 @@ npm install
 
 The Reader View extension is downloaded and extracted automatically on first run.
 
-## Usage
+## CLI Usage
 
 ```bash
 node src/index.js --help
@@ -89,6 +89,60 @@ npm test
 ```
 
 The test script reads URLs from `src/test/test.txt` and runs multiple scenarios (default, dark, sepia, custom CSS, etc.).
+
+## Library Usage
+
+Use pdfy programmatically in your own Node.js applications:
+
+```js
+import { convert, launchBrowser, BotProtectionError, VALID_THEMES } from 'pdfy'
+
+// Simple usage
+const { title, pdfBuffer } = await convert('https://example.com/article')
+fs.writeFileSync('article.pdf', pdfBuffer)
+
+// With options
+const result = await convert('https://example.com/article', {
+  theme: 'dark',
+  css: 'body { color: #333 }',
+  prefs: { fontSize: 20 },
+  output: './article.pdf'     // saves to disk and returns buffer
+})
+console.log(`Generated: ${result.title}`)
+
+// Reuse browser across conversions (for servers)
+const browser = await launchBrowser()
+const a = await convert('https://example.com/1', { browser, theme: 'dark' })
+const b = await convert('https://example.com/2', { browser, theme: 'sepia' })
+await browser.close()
+
+// Handle bot protection
+try {
+  await convert('https://example.com/article')
+} catch (err) {
+  if (err instanceof BotProtectionError) {
+    // Prompt user to provide the article HTML manually
+  }
+}
+```
+
+### API
+
+**`convert(url, options?)`** — returns `{ title, pdfBuffer, outputPath }`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `theme` | string | `'light'` | Reader View theme |
+| `css` | string | `null` | Custom CSS string |
+| `prefs` | object | `{}` | Extension preferences |
+| `output` | string | `null` | File path to write PDF (returns buffer when omitted) |
+| `browser` | Browser | `null` | Reuse a Puppeteer browser instance |
+| `html` | string | `null` | Pre-fetched HTML content (skips URL fetch) |
+
+**`launchBrowser()`** — launches a Puppeteer browser with the Reader View extension loaded.
+
+**`BotProtectionError`** — thrown when the target page appears to be behind bot protection.
+
 
 ## Credits
 

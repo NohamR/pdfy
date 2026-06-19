@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "description": "Convert web articles to PDF using Reader View and Puppeteer",
-  "main": "src/index.js",
+  "main": "src/pdfy.js",
+  "exports": {
+    ".": "./src/pdfy.js"
+  },
   "scripts": {
     "start": "node src/index.js",
     "test": "node src/test/test.js"

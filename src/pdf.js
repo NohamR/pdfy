@@ -47,9 +47,7 @@ export async function generatePdf (page, html, outputPath) {
     () => Array.from(document.images).every(img => img.complete),
     { timeout: 15000, polling: 200 }
   ).catch(() => logger.debug('Image wait timed out, continuing...'))
-  logger.info(`Generating PDF: "${outputPath}"`)
-  await page.pdf({
-    path: outputPath,
+  const pdfOptions = {
     format: 'A4',
     printBackground: true,
     margin: {
@@ -58,6 +56,14 @@ export async function generatePdf (page, html, outputPath) {
       left: '0mm',
       right: '0mm'
     }
-  })
-  logger.info(`PDF saved: "${outputPath}"`)
+  }
+  if (outputPath) {
+    pdfOptions.path = outputPath
+    logger.info(`Generating PDF: "${outputPath}"`)
+  }
+  const buffer = await page.pdf(pdfOptions)
+  if (outputPath) {
+    logger.info(`PDF saved: "${outputPath}"`)
+  }
+  return buffer
 }
