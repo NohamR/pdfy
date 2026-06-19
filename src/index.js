@@ -41,7 +41,7 @@ async function promptForInput () {
 async function main () {
   const { url, opts } = parseArgs()
 
-  checkExtension()
+  await checkExtension()
 
   let preferences = {}
   if (opts.prefs) {

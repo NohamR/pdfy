@@ -18,12 +18,7 @@ Convert web articles to PDF using the [Reader View](https://chromewebstore.googl
 npm install
 ```
 
-Extract the Reader View extension (get it using [CRX Downloader](https://chromewebstore.google.com/detail/crx-extractordownloader/ajkhmmldknmfjnmeedkbkkojgobmljda)):
-
-```bash
-mkdir -p extension/reader-view
-unzip extension/Reader-View-Chrome-Web-Store.zip -d extension/reader-view
-```
+The Reader View extension is downloaded and extracted automatically on first run.
 
 ## Usage
 

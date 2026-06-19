@@ -1,26 +1,31 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import puppeteer from 'puppeteer'
+import { downloadExtension } from './download-extension.js'
 import logger from './logger.js'
 
 const EXTENSION_DIR = path.resolve('./extension/reader-view')
 const MANIFEST_PATH = path.join(EXTENSION_DIR, 'manifest.json')
 const READABILITY_PATH = path.join(EXTENSION_DIR, 'data/inject/Readability.js')
 
-export function checkExtension () {
+export async function checkExtension () {
   if (!fs.existsSync(MANIFEST_PATH)) {
-    logger.error(
-      `Extension not found at: "${EXTENSION_DIR}"\n` +
-        'Please extract the extension first:\n' +
-        '  mkdir -p extension/reader-view\n' +
-        '  unzip extension/Reader-View-Chrome-Web-Store.zip -d extension/reader-view'
-    )
-    process.exit(1)
+    logger.info('Extension not found. Downloading automatically...')
+    try {
+      await downloadExtension({ logger })
+    } catch (err) {
+      logger.error(`Failed to download extension: ${err.message}`)
+      process.exit(1)
+    }
+    if (!fs.existsSync(MANIFEST_PATH)) {
+      logger.error('Download completed but extension not found. Extraction may have failed.')
+      process.exit(1)
+    }
   }
   if (!fs.existsSync(READABILITY_PATH)) {
     logger.error(
       `Readability.js not found at: "${READABILITY_PATH}"\n` +
-        'The extension may be incomplete. Please re-extract it.'
+        'The extension may be incomplete.'
     )
     process.exit(1)
   }
