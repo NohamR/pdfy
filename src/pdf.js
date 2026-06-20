@@ -34,6 +34,7 @@ export function enhanceHtml (html, customCss, highlightStyle = 'github') {
     '</head>',
     `${highlightCss(highlightStyle)}${HIGHLIGHT_JS}</head>`
   )
+  enhanced = enhanced.replace(/<details(?![^>]*?\bopen\b)/g, '<details open')
   if (customCss !== null) {
     enhanced = enhanced.replace(
       '</head>',
