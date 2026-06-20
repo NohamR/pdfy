@@ -37,7 +37,8 @@ export async function convert (url, options = {}) {
     css = null,
     prefs = {},
     output = null,
-    browser: externalBrowser = null
+    browser: externalBrowser = null,
+    highlightStyle
   } = options
 
   if (!VALID_THEMES.includes(theme)) {
@@ -112,7 +113,7 @@ export async function convert (url, options = {}) {
     contentHtml = contentHtml.replace(/ loading="lazy"/g, '')
     await readerPage.close()
 
-    const enhancedHtml = enhanceHtml(contentHtml, css)
+    const enhancedHtml = enhanceHtml(contentHtml, css, highlightStyle)
 
     const pdfPage = await browser.newPage()
     await pdfPage.setViewport({ width: 1280, height: 7200 })

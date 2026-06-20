@@ -29,7 +29,7 @@ async function handleConvert (req, res) {
     return sendJson(res, 400, { error: 'Invalid JSON body' })
   }
 
-  const { url, theme, css, prefs, html } = body
+  const { url, theme, css, prefs, html, highlightStyle } = body
 
   if (!url && !html) {
     return sendJson(res, 400, { error: 'Missing required field: url (or html for direct content)' })
@@ -47,7 +47,8 @@ async function handleConvert (req, res) {
       html: html || null,
       theme: theme || 'light',
       css: css || null,
-      prefs: prefs || {}
+      prefs: prefs || {},
+      highlightStyle
     })
 
     const sizeKb = (result.pdfBuffer.length / 1024).toFixed(0)
@@ -92,7 +93,7 @@ const server = createServer((req, res) => {
 pdfy server
 
 POST /convert   Convert a URL to PDF
-  Body: { "url": "...", "theme": "...", "css": "...", "html": "..." }
+  Body: { "url": "...", "theme": "...", "css": "...", "html": "...", "highlightStyle": "..." }
 
 GET /health     Health check
 GET /           This help

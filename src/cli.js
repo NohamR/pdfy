@@ -21,6 +21,10 @@ program
     '-t, --theme <theme>',
     `Reader View theme (${VALID_THEMES.join(', ')})`
   )
+  .option(
+    '--highlight-style <style>',
+    'highlight.js style (e.g. github, monokai, solarized-light, atom-one-dark)'
+  )
   .option('-c, --css <path>', 'path to custom CSS file')
   .option('--config <path>', 'path to config file (.pdfyrc, .pdfyrc.json, pdfy.config.js)')
   .option('-p, --prefs <path>', 'path to extension preferences JSON')
@@ -37,8 +41,8 @@ program
     `
 Examples:
   node src/index.js <URL>
-  node src/index.js <URL> --theme dark --css config/rules.css
-  npm start -- <URL> --theme dark --css config/rules.css
+  node src/index.js <URL> --theme dark --highlight-style monokai --css config/rules.css
+  npm start -- <URL> --theme dark --highlight-style monokai --css config/rules.css
 `
   )
 
@@ -52,7 +56,8 @@ export function parseArgs () {
       css: opts.css || null,
       prefs: opts.prefs || null,
       output: opts.output || null,
-      config: opts.config || null
+      config: opts.config || null,
+      highlightStyle: opts.highlightStyle || null
     }
   }
 }

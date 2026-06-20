@@ -11,6 +11,8 @@ function normalizeConfig (config) {
   if (config.css) result.css = config.css
   if (config.prefs) result.prefs = config.prefs
   if (config.output) result.output = config.output
+  if (config.highlightStyle) result.highlightStyle = config.highlightStyle
+  if (config['highlight-style']) result.highlightStyle = config['highlight-style']
   if (config['log-level']) result.logLevel = config['log-level']
   if (config.logLevel) result.logLevel = config.logLevel
   return result

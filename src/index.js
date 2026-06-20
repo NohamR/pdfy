@@ -23,9 +23,9 @@ async function main () {
 
   const config = await loadConfigFile(opts.config)
 
-  const prefsPath = opts.prefs || null
-  const cssPath = opts.css || null
-  const outputPath = opts.output || null
+  const prefsPath = opts.prefs || config.prefs || null
+  const cssPath = opts.css || config.css || null
+  const outputPath = opts.output || config.output || null
 
   const preferences = prefsPath ? loadPreferences(path.resolve(prefsPath)) : {}
   const customCss = cssPath ? readCustomCss(path.resolve(cssPath)) : null
@@ -37,10 +37,11 @@ async function main () {
     try {
       const result = await convert(currentUrl, {
         html,
-        theme: opts.theme || preferences.mode,
+        theme: opts.theme || config.theme || preferences.mode || 'light',
         css: customCss,
         prefs: preferences,
-        output: outputPath
+        output: outputPath,
+        highlightStyle: opts.highlightStyle || config.highlightStyle
       })
 
       const sizeKb = (result.pdfBuffer.length / 1024).toFixed(0)

@@ -8,7 +8,7 @@ Convert web articles to PDF using the [Reader View](https://chromewebstore.googl
 - Renders using Reader View for clean typography
 - Supports all Reader View themes: `light`, `dark`, `sepia`, `groove-dark`, `solarized-light`, `solarized-dark`, `nord-light`, `nord-dark`
 - Custom CSS injection
-- Syntax highlighting via highlight.js
+- Syntax highlighting via highlight.js (configurable style)
 - Automatic reading time estimation
 - Configurable extension preferences
 
@@ -33,13 +33,14 @@ Arguments:
   url                      URL of the article to convert
 
 Options:
-  -t, --theme <theme>      Reader View theme (light, dark, sepia, groove-dark, solarized-light, solarized-dark, nord-light, nord-dark)
-  -c, --css <path>         path to custom CSS file
-  --config <path>          path to config file (.pdfyrc, .pdfyrc.json, pdfy.config.js)
-  -p, --prefs <path>       path to extension preferences JSON
-  -o, --output <path>      output file path (default: ./output/<title>.pdf)
-  -l, --log-level <level>  logging level (fatal, error, warn, info, debug)
-  -h, --help               display help for command
+  -t, --theme <theme>        Reader View theme (light, dark, sepia, groove-dark, solarized-light, solarized-dark, nord-light, nord-dark)
+  --highlight-style <style>  highlight.js style (e.g. github, monokai, solarized-light, atom-one-dark)
+  -c, --css <path>           path to custom CSS file
+  --config <path>            path to config file (.pdfyrc, .pdfyrc.json, pdfy.config.js)
+  -p, --prefs <path>         path to extension preferences JSON
+  -o, --output <path>        output file path (default: ./output/<title>.pdf)
+  -l, --log-level <level>    logging level (fatal, error, warn, info, debug)
+  -h, --help                 display help for command
 ```
 
 ### Configuration
@@ -78,6 +79,7 @@ CLI flags always override config file values. Use `--config <path>` to specify a
 node src/index.js https://example.com/article
 node src/index.js https://example.com/article --theme dark --css config/rules.css
 node src/index.js https://example.com/article --prefs config/reader-view-preferences.json
+node src/index.js https://example.com/article --highlight-style monokai
 node src/index.js https://example.com/article --config .pdfyrc
 npm start -- https://example.com/article --theme dark --css config/rules.css
 ```
@@ -134,6 +136,7 @@ try {
 |--------|------|---------|-------------|
 | `theme` | string | `'light'` | Reader View theme |
 | `css` | string | `null` | Custom CSS string |
+| `highlightStyle` | string | `'github'` | highlight.js style name |
 | `prefs` | object | `{}` | Extension preferences |
 | `output` | string | `null` | File path to write PDF (returns buffer when omitted) |
 | `browser` | Browser | `null` | Reuse a Puppeteer browser instance |
@@ -178,6 +181,7 @@ curl -X POST http://localhost:8080/convert \
 | `url` | string | Article URL (required unless `html` is provided) |
 | `theme` | string | Reader View theme |
 | `css` | string | Custom CSS string |
+| `highlightStyle` | string | highlight.js style (default: `"github"`) |
 | `html` | string | Pre-fetched HTML (bypasses URL fetch) |
 | `prefs` | object | Extension preferences |
 

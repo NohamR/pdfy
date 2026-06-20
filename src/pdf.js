@@ -2,10 +2,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import logger from './logger.js'
 
-const HIGHLIGHT_CSS =
-  '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">'
 const HIGHLIGHT_JS =
   '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"><\/script><script>hljs.highlightAll();<\/script>'
+
+function highlightCss (style) {
+  return `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/${style}.min.css">`
+}
 
 export function getOutputFilename (title, outputDir) {
   const safe = title
@@ -27,10 +29,10 @@ export function resolveOutputPath (outputFlag) {
   return resolved.endsWith('.pdf') ? resolved : `${resolved}.pdf`
 }
 
-export function enhanceHtml (html, customCss) {
+export function enhanceHtml (html, customCss, highlightStyle = 'github') {
   let enhanced = html.replace(
     '</head>',
-    `${HIGHLIGHT_CSS}${HIGHLIGHT_JS}</head>`
+    `${highlightCss(highlightStyle)}${HIGHLIGHT_JS}</head>`
   )
   if (customCss !== null) {
     enhanced = enhanced.replace(
@@ -51,8 +53,8 @@ export async function generatePdf (page, html, outputPath, { timeout = 30000 } =
     format: 'A4',
     printBackground: true,
     margin: {
-      top: '0mm',
-      bottom: '0mm',
+      top: '10mm',
+      bottom: '10mm',
       left: '0mm',
       right: '0mm'
     }
