@@ -1,6 +1,7 @@
 import fs from 'node:fs'
-import process from 'node:process'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import process from 'node:process'
 import readline from 'node:readline/promises'
 import { parseArgs } from './cli.js'
 import { loadConfigFile, loadPreferences, readCustomCss } from './config.js'
@@ -31,7 +32,12 @@ async function main () {
   const customCss = cssPath ? readCustomCss(path.resolve(cssPath)) : null
 
   let html
-  const currentUrl = url
+  const filePath = path.resolve(url)
+  let currentUrl = url
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    currentUrl = pathToFileURL(filePath).href
+    logger.info(`Detected local file, converting to file URL: ${currentUrl}`)
+  }
 
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -66,6 +72,7 @@ async function main () {
 
         logger.info(`Loading article from local file: "${resolvedPath}"`)
         html = fs.readFileSync(resolvedPath, 'utf-8')
+        currentUrl = pathToFileURL(resolvedPath).href
         continue
       }
       throw err

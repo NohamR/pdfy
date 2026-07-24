@@ -30,7 +30,7 @@ node src/index.js --help
 Usage: pdfy [options] <url>
 
 Arguments:
-  url                      URL of the article to convert
+  url                        URL of the article to convert, or path to a local HTML file
 
 Options:
   -t, --theme <theme>        Reader View theme (light, dark, sepia, groove-dark, solarized-light, solarized-dark, nord-light, nord-dark)
@@ -77,7 +77,9 @@ CLI flags always override config file values. Use `--config <path>` to specify a
 
 ```bash
 node src/index.js https://example.com/article
+node src/index.js /path/to/saved/page.html
 node src/index.js https://example.com/article --theme dark --css config/rules.css
+node src/index.js /path/to/saved/page.html --theme dark --highlight-style monokai
 node src/index.js https://example.com/article --prefs config/reader-view-preferences.json
 node src/index.js https://example.com/article --highlight-style monokai
 node src/index.js https://example.com/article --config .pdfyrc

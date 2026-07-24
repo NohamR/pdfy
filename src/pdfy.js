@@ -124,7 +124,7 @@ export async function convert (url, options = {}) {
       fs.mkdirSync(path.dirname(outputPath), { recursive: true })
     }
 
-    const pdfBuffer = await generatePdf(pdfPage, enhancedHtml, outputPath, { timeout })
+    const pdfBuffer = await generatePdf(pdfPage, enhancedHtml, outputPath, { timeout, url })
     await pdfPage.close()
 
     return { title, pdfBuffer, outputPath }

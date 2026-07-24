@@ -16,7 +16,7 @@ const program = new Command()
 program
   .name('pdfy')
   .description('Convert web articles to PDF using Reader View and Puppeteer')
-  .argument('<url>', 'URL of the article to convert')
+  .argument('<url>', 'URL of the article to convert, or path to a local HTML file')
   .option(
     '-t, --theme <theme>',
     `Reader View theme (${VALID_THEMES.join(', ')})`
@@ -42,6 +42,8 @@ program
 Examples:
   node src/index.js <URL>
   node src/index.js <URL> --theme dark --highlight-style monokai --css config/rules.css
+  node src/index.js <path/to/file.html> --theme dark --highlight-style monokai
+  node src/index.js <URL> --prefs config/reader-view-preferences.json
   npm start -- <URL> --theme dark --highlight-style monokai --css config/rules.css
 `
   )

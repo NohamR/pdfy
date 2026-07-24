@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import logger from './logger.js'
 
 const HIGHLIGHT_JS =
@@ -44,8 +45,19 @@ export function enhanceHtml (html, customCss, highlightStyle = 'github') {
   return enhanced
 }
 
-export async function generatePdf (page, html, outputPath, { timeout = 30000 } = {}) {
-  await page.setContent(html, { waitUntil: 'networkidle0', timeout })
+export async function generatePdf (page, html, outputPath, { timeout = 30000, url = null } = {}) {
+  const isFileUrl = url && url.startsWith('file://')
+
+  let tempFile = null
+  if (isFileUrl) {
+    const sourceDir = path.dirname(new URL(url).pathname)
+    tempFile = path.join(sourceDir, `.pdfy-temp-${Date.now()}.html`)
+    fs.writeFileSync(tempFile, html)
+    await page.goto(pathToFileURL(tempFile).href, { waitUntil: 'networkidle0', timeout })
+  } else {
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout })
+  }
+
   await page.waitForFunction(
     () => Array.from(document.images).every(img => img.complete),
     { timeout, polling: 200 }
@@ -67,6 +79,9 @@ export async function generatePdf (page, html, outputPath, { timeout = 30000 } =
   const buffer = await page.pdf(pdfOptions)
   if (outputPath) {
     logger.info(`PDF saved: "${outputPath}"`)
+  }
+  if (tempFile) {
+    try { fs.unlinkSync(tempFile) } catch { }
   }
   return buffer
 }
