@@ -143,6 +143,15 @@ export async function extractRenderedContent (page) {
         doc.documentElement.setAttribute('data-mode', dataMode)
       }
 
+      // The article HTML is later re-rendered from an opaque origin (about:blank),
+      // so resources become cross-origin. Sites rarely send CORS headers for
+      // images, which makes images with `crossorigin="anonymous"` fail to load
+      // (and `integrity` checks reject them). Strip both so images render.
+      for (const el of doc.querySelectorAll('[crossorigin], [integrity]')) {
+        el.removeAttribute('crossorigin')
+        el.removeAttribute('integrity')
+      }
+
       const cs = getComputedStyle(doc.documentElement)
       const cssVars = ['--fg', '--bg', '--bd', '--lk', '--hg']
       const inlineVars = cssVars
